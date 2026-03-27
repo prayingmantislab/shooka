@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { CATEGORIES } from "@/types";
 import type { FamilyDoc, UserInfo, ShoppingItem, CategoryId, UnitType } from "@/types";
 import CategorySection from "./CategorySection";
@@ -16,6 +16,7 @@ interface Props {
   onRemove: (id: string) => void;
   onClearChecked: () => void;
   onClearAll: () => void;
+  onReset: () => void;
 }
 
 export default function ShoppingList({
@@ -27,9 +28,22 @@ export default function ShoppingList({
   onRemove,
   onClearChecked,
   onClearAll,
+  onReset,
 }: Props) {
   const [showModal, setShowModal] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   const hasChecked = items.some((i) => i.inCart);
 
@@ -62,7 +76,6 @@ export default function ShoppingList({
               </button>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xl" title={user.displayName}>{user.avatar}</span>
               {hasChecked && (
                 <button
                   onClick={onClearChecked}
@@ -79,6 +92,29 @@ export default function ShoppingList({
                   נקה הכל
                 </button>
               )}
+              {/* Avatar menu */}
+              <div className="relative" ref={menuRef}>
+                <button
+                  onClick={() => setShowMenu((v) => !v)}
+                  className="text-xl w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
+                  title={user.displayName}
+                >
+                  {user.avatar}
+                </button>
+                {showMenu && (
+                  <div className="absolute left-0 top-11 bg-white border border-gray-200 rounded-xl shadow-lg py-1 w-40 z-20">
+                    <p className="px-3 py-1.5 text-xs text-gray-400 border-b border-gray-100">
+                      {user.displayName}
+                    </p>
+                    <button
+                      onClick={() => { setShowMenu(false); onReset(); }}
+                      className="w-full text-right px-3 py-2 text-sm text-red-500 hover:bg-red-50 transition-colors"
+                    >
+                      התנתק / החלף משתמש
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

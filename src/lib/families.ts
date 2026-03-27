@@ -45,7 +45,10 @@ export async function joinFamily(
 ): Promise<FamilyDoc> {
   const q = query(
     collection(db, "families"),
-    where("joinCode", "==", joinCode.replace(/[^\w]/g, "").toUpperCase())
+    where("joinCode", "in", [
+      joinCode.replace(/[^\w]/g, "").toUpperCase(),
+      joinCode.replace(/[^\w]/g, "").toUpperCase() + "🛒",
+    ])
   );
   const snap = await getDocs(q);
 

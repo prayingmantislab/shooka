@@ -7,7 +7,7 @@ import FamilySetup from "@/components/FamilySetup";
 import ShoppingList from "@/components/ShoppingList";
 
 export default function Home() {
-  const { user, loaded, saveUser } = useLocalUser();
+  const { user, loaded, saveUser, clearUser } = useLocalUser();
   const {
     family,
     setFamily,
@@ -45,6 +45,11 @@ export default function Home() {
     );
   }
 
+  function handleReset() {
+    clearUser();
+    setFamily(null);
+  }
+
   return (
     <ShoppingList
       family={family}
@@ -55,6 +60,7 @@ export default function Home() {
       onRemove={removeItem}
       onClearChecked={clearChecked}
       onClearAll={clearAll}
+      onReset={handleReset}
     />
   );
 }
