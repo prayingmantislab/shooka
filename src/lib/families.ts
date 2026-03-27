@@ -43,23 +43,20 @@ export async function joinFamily(
   joinCode: string,
   user: { uid: string; displayName: string; avatar: string }
 ): Promise<FamilyDoc> {
-  const q = query(
-    collection(db, "families"),
-    where("joinCode", "in", [
-      joinCode.replace(/[^\w]/g, "").toUpperCase(),
-      joinCode.replace(/[^\w]/g, "").toUpperCase() + "🛒",
-    ])
-  );
-  const snap = await getDocs(q);
+  const normalized = joinCode.replace(/[^\w]/g, "").toUpperCase();
 
-  if (snap.empty) {
-    throw new Error("קוד לא תקין — Family not found");
+  // Try clean code first, then legacy emoji code
+  for (const code of [normalized, normalized + "🛒"]) {
+    const q = query(collection(db, "families"), where("joinCode", "==", code));
+    const snap = await getDocs(q);
+    if (!snap.empty) {
+      const family = snap.docs[0].data() as FamilyDoc;
+      await saveUserDoc({ ...user, familyId: family.id });
+      return family;
+    }
   }
 
-  const family = snap.docs[0].data() as FamilyDoc;
-  await saveUserDoc({ ...user, familyId: family.id });
-
-  return family;
+  throw new Error("קוד לא תקין — Family not found");
 }
 
 export async function loadUserFamily(uid: string): Promise<FamilyDoc | null> {
