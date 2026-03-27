@@ -41,7 +41,7 @@ export async function addItem(
     id: ref.id,
     name: payload.name,
     categoryId: payload.categoryId,
-    price: payload.price,
+    ...(payload.price != null && { price: payload.price }),
     inCart: false,
     addedBy: payload.addedBy,
     createdAt: now,
