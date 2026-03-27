@@ -1,0 +1,123 @@
+"use client";
+
+import { useState } from "react";
+import { CATEGORIES } from "@/types";
+import type { FamilyDoc, UserInfo, ShoppingItem, CategoryId } from "@/types";
+import CategorySection from "./CategorySection";
+import AddItemModal from "./AddItemModal";
+import BudgetBar from "./BudgetBar";
+
+interface Props {
+  family: FamilyDoc;
+  user: UserInfo;
+  items: ShoppingItem[];
+  onAdd: (payload: { name: string; categoryId: CategoryId; price?: number }) => void;
+  onToggle: (item: ShoppingItem) => void;
+  onRemove: (id: string) => void;
+  onClearChecked: () => void;
+  onClearAll: () => void;
+}
+
+export default function ShoppingList({
+  family,
+  user,
+  items,
+  onAdd,
+  onToggle,
+  onRemove,
+  onClearChecked,
+  onClearAll,
+}: Props) {
+  const [showModal, setShowModal] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
+
+  const hasChecked = items.some((i) => i.inCart);
+
+  function copyCode() {
+    navigator.clipboard.writeText(family.joinCode);
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2000);
+  }
+
+  // Group items by category, preserving category order
+  const grouped = CATEGORIES.map((cat) => ({
+    category: cat,
+    items: items.filter((i) => i.categoryId === cat.id),
+  })).filter((g) => g.items.length > 0);
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Header */}
+      <header className="bg-white shadow-sm sticky top-0 z-10">
+        <div className="max-w-lg mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="font-bold text-lg leading-tight">{family.name} 🛒</h1>
+              <button
+                onClick={copyCode}
+                className="text-xs text-gray-400 hover:text-green-600 transition-colors flex items-center gap-1 mt-0.5"
+              >
+                קוד: {family.joinCode}
+                <span>{copiedCode ? "✅" : "📋"}</span>
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xl" title={user.displayName}>{user.avatar}</span>
+              {hasChecked && (
+                <button
+                  onClick={onClearChecked}
+                  className="text-xs text-red-400 hover:text-red-600 border border-red-200 rounded-lg px-2 py-1 transition-colors"
+                >
+                  נקה מסומנים
+                </button>
+              )}
+              {items.length > 0 && (
+                <button
+                  onClick={onClearAll}
+                  className="text-xs text-gray-400 hover:text-red-400 border border-gray-200 rounded-lg px-2 py-1 transition-colors"
+                >
+                  נקה הכל
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+        <BudgetBar items={items} />
+      </header>
+
+      {/* List */}
+      <main className="flex-1 max-w-lg mx-auto w-full pb-24">
+        {items.length === 0 ? (
+          <div className="text-center py-20 text-gray-400">
+            <p className="text-5xl mb-4">🛒</p>
+            <p className="font-medium">הרשימה ריקה</p>
+            <p className="text-sm mt-1">לחץ + כדי להוסיף פריט</p>
+          </div>
+        ) : (
+          <div className="mt-2">
+            {grouped.map(({ category, items: catItems }) => (
+              <CategorySection
+                key={category.id}
+                category={category}
+                items={catItems}
+                onToggle={onToggle}
+                onRemove={onRemove}
+              />
+            ))}
+          </div>
+        )}
+      </main>
+
+      {/* FAB */}
+      <button
+        onClick={() => setShowModal(true)}
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-green-500 hover:bg-green-600 text-white w-14 h-14 rounded-full shadow-lg text-3xl flex items-center justify-center transition-colors z-10"
+        aria-label="הוסף פריט"
+      >
+        +
+      </button>
+
+      {showModal && <AddItemModal onAdd={onAdd} onClose={() => setShowModal(false)} />}
+    </div>
+  );
+}
