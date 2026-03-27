@@ -45,10 +45,17 @@ export default function ItemRow({ item, onToggle, onRemove }: Props) {
         </p>
       </div>
 
-      {/* Price */}
-      {item.price != null && (
-        <span className="text-sm text-gray-500 flex-shrink-0">₪{item.price.toFixed(2)}</span>
-      )}
+      {/* Quantity + Price */}
+      <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
+        {item.quantity != null && (
+          <span className="text-sm font-medium text-gray-600">
+            {item.quantity} {item.unit ?? "יחידות"}
+          </span>
+        )}
+        {item.price != null && (
+          <span className="text-xs text-gray-400">₪{item.price.toFixed(2)}</span>
+        )}
+      </div>
 
       {/* Remove */}
       <button

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { subscribeToItems, addItem, toggleItem, removeItem, clearItems } from "@/lib/items";
 import { loadUserFamily } from "@/lib/families";
-import type { FamilyDoc, ShoppingItem, CategoryId, UserInfo } from "@/types";
+import type { FamilyDoc, ShoppingItem, CategoryId, UnitType, UserInfo } from "@/types";
 
 export function useFamily(user: UserInfo | null) {
   const [family, setFamily] = useState<FamilyDoc | null>(null);
@@ -32,7 +32,7 @@ export function useFamily(user: UserInfo | null) {
   }, [family]);
 
   const handleAdd = useCallback(
-    (payload: { name: string; categoryId: CategoryId; price?: number }) => {
+    (payload: { name: string; categoryId: CategoryId; quantity?: number; unit?: UnitType; price?: number }) => {
       if (!family || !user) return;
       // Optimistic — Firestore will confirm via onSnapshot
       addItem(family.id, { ...payload, addedBy: user });

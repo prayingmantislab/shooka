@@ -9,7 +9,7 @@ import {
   type Unsubscribe,
 } from "firebase/firestore";
 import { db } from "./firebase";
-import type { ShoppingItem, CategoryId, UserInfo } from "@/types";
+import type { ShoppingItem, CategoryId, UnitType, UserInfo } from "@/types";
 
 function itemsCol(familyId: string) {
   return collection(db, "families", familyId, "items");
@@ -31,6 +31,8 @@ export async function addItem(
   payload: {
     name: string;
     categoryId: CategoryId;
+    quantity?: number;
+    unit?: UnitType;
     price?: number;
     addedBy: UserInfo;
   }
@@ -41,6 +43,8 @@ export async function addItem(
     id: ref.id,
     name: payload.name,
     categoryId: payload.categoryId,
+    ...(payload.quantity != null && { quantity: payload.quantity }),
+    ...(payload.unit != null && { unit: payload.unit }),
     ...(payload.price != null && { price: payload.price }),
     inCart: false,
     addedBy: payload.addedBy,

@@ -35,10 +35,16 @@ export interface UserInfo {
   avatar: string;
 }
 
+export type UnitType = "יחידות" | "ק״ג" | "גרם" | "ליטר" | "מ״ל" | "אריזה";
+
+export const UNITS: UnitType[] = ["יחידות", "ק״ג", "גרם", "ליטר", "מ״ל", "אריזה"];
+
 export interface ShoppingItem {
   id: string;
   name: string;
   categoryId: CategoryId;
+  quantity?: number;
+  unit?: UnitType;
   price?: number;
   inCart: boolean;
   addedBy: UserInfo;

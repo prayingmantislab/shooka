@@ -1,17 +1,19 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { CATEGORIES } from "@/types";
-import type { CategoryId } from "@/types";
+import { CATEGORIES, UNITS } from "@/types";
+import type { CategoryId, UnitType } from "@/types";
 
 interface Props {
-  onAdd: (payload: { name: string; categoryId: CategoryId; price?: number }) => void;
+  onAdd: (payload: { name: string; categoryId: CategoryId; quantity?: number; unit?: UnitType; price?: number }) => void;
   onClose: () => void;
 }
 
 export default function AddItemModal({ onAdd, onClose }: Props) {
   const [name, setName] = useState("");
   const [categoryId, setCategoryId] = useState<CategoryId>("other");
+  const [quantity, setQuantity] = useState("1");
+  const [unit, setUnit] = useState<UnitType>("יחידות");
   const [price, setPrice] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -25,6 +27,8 @@ export default function AddItemModal({ onAdd, onClose }: Props) {
     onAdd({
       name: name.trim(),
       categoryId,
+      quantity: quantity ? parseFloat(quantity) : undefined,
+      unit,
       price: price ? parseFloat(price) : undefined,
     });
     onClose();
@@ -51,9 +55,40 @@ export default function AddItemModal({ onAdd, onClose }: Props) {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="לדוגמה: חלב 3%, לחם שיפון..."
+              placeholder="לדוגמה: תפוחים, חלב 3%..."
               className="w-full border border-gray-300 rounded-xl px-4 py-2 text-right focus:outline-none focus:ring-2 focus:ring-green-400"
             />
+          </div>
+
+          {/* Quantity + Unit */}
+          <div>
+            <label className="block text-sm font-medium mb-1">כמות</label>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                min="0.1"
+                step="0.1"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                className="w-24 border border-gray-300 rounded-xl px-3 py-2 text-center focus:outline-none focus:ring-2 focus:ring-green-400"
+              />
+              <div className="flex gap-1 flex-wrap flex-1">
+                {UNITS.map((u) => (
+                  <button
+                    key={u}
+                    type="button"
+                    onClick={() => setUnit(u)}
+                    className={`px-3 py-1.5 rounded-xl text-sm transition-all ${
+                      unit === u
+                        ? "bg-green-100 ring-2 ring-green-500 font-semibold"
+                        : "border border-gray-200 text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    {u}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Category */}

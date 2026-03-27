@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { CATEGORIES } from "@/types";
-import type { FamilyDoc, UserInfo, ShoppingItem, CategoryId } from "@/types";
+import type { FamilyDoc, UserInfo, ShoppingItem, CategoryId, UnitType } from "@/types";
 import CategorySection from "./CategorySection";
 import AddItemModal from "./AddItemModal";
 import BudgetBar from "./BudgetBar";
@@ -11,7 +11,7 @@ interface Props {
   family: FamilyDoc;
   user: UserInfo;
   items: ShoppingItem[];
-  onAdd: (payload: { name: string; categoryId: CategoryId; price?: number }) => void;
+  onAdd: (payload: { name: string; categoryId: CategoryId; quantity?: number; unit?: UnitType; price?: number }) => void;
   onToggle: (item: ShoppingItem) => void;
   onRemove: (id: string) => void;
   onClearChecked: () => void;
