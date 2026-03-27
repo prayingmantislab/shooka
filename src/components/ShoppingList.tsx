@@ -57,7 +57,7 @@ export default function ShoppingList({
                 onClick={copyCode}
                 className="text-xs text-gray-400 hover:text-green-600 transition-colors flex items-center gap-1 mt-0.5"
               >
-                קוד: {family.joinCode}
+                קוד: {family.joinCode} 🛒
                 <span>{copiedCode ? "✅" : "📋"}</span>
               </button>
             </div>

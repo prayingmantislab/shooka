@@ -16,7 +16,7 @@ function generateJoinCode(): string {
   for (let i = 0; i < 5; i++) {
     code += chars[Math.floor(Math.random() * chars.length)];
   }
-  return code + "🛒";
+  return code;
 }
 
 export async function createFamily(
@@ -45,7 +45,7 @@ export async function joinFamily(
 ): Promise<FamilyDoc> {
   const q = query(
     collection(db, "families"),
-    where("joinCode", "==", joinCode.toUpperCase())
+    where("joinCode", "==", joinCode.replace(/[^\w]/g, "").toUpperCase())
   );
   const snap = await getDocs(q);
 
