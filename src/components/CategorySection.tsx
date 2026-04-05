@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import ItemRow from "./ItemRow";
 import type { Category, ShoppingItem } from "@/types";
 
@@ -9,10 +9,45 @@ interface Props {
   items: ShoppingItem[];
   onToggle: (item: ShoppingItem) => void;
   onRemove: (id: string) => void;
+  onUpdate: (itemId: string, updates: Partial<Pick<ShoppingItem, "quantity" | "notes" | "unit" | "price">>) => void;
+  onQuickAdd: (name: string) => void;
 }
 
-export default function CategorySection({ category, items, onToggle, onRemove }: Props) {
+export default function CategorySection({ category, items, onToggle, onRemove, onUpdate, onQuickAdd }: Props) {
   const [collapsed, setCollapsed] = useState(false);
+  const [showInput, setShowInput] = useState(false);
+  const [quickName, setQuickName] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function openInput() {
+    setShowInput(true);
+    // Wait for render then focus
+    setTimeout(() => inputRef.current?.focus(), 0);
+  }
+
+  function handleQuickAdd(e: React.FormEvent) {
+    e.preventDefault();
+    const name = quickName.trim();
+    if (!name) return;
+    onQuickAdd(name);
+    setQuickName("");
+    // Stay open so user can keep adding
+    inputRef.current?.focus();
+  }
+
+  function handleBlur() {
+    // Close if left empty
+    if (!quickName.trim()) {
+      setShowInput(false);
+    }
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Escape") {
+      setQuickName("");
+      setShowInput(false);
+    }
+  }
 
   return (
     <div className="mb-2">
@@ -37,8 +72,39 @@ export default function CategorySection({ category, items, onToggle, onRemove }:
       {!collapsed && (
         <div className="bg-white">
           {items.map((item) => (
-            <ItemRow key={item.id} item={item} onToggle={onToggle} onRemove={onRemove} />
+            <ItemRow key={item.id} item={item} onToggle={onToggle} onRemove={onRemove} onUpdate={onUpdate} />
           ))}
+
+          {/* Quick add */}
+          {showInput ? (
+            <form onSubmit={handleQuickAdd} className="flex gap-2 px-4 py-2 border-t border-gray-100">
+              <input
+                ref={inputRef}
+                type="text"
+                value={quickName}
+                onChange={(e) => setQuickName(e.target.value)}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
+                placeholder={`הוסף ל${category.label}...`}
+                className="flex-1 text-sm border border-gray-200 rounded-xl px-3 py-1.5 text-right focus:outline-none focus:ring-2 focus:ring-green-300 bg-gray-50"
+              />
+              <button
+                type="submit"
+                disabled={!quickName.trim()}
+                className="w-8 h-8 bg-green-500 text-white rounded-full text-lg font-bold flex items-center justify-center hover:bg-green-600 disabled:opacity-30 transition-colors flex-shrink-0"
+              >
+                +
+              </button>
+            </form>
+          ) : (
+            <button
+              onClick={openInput}
+              className="w-full flex items-center gap-1.5 px-4 py-2 text-sm text-gray-400 hover:text-green-600 hover:bg-green-50 transition-colors border-t border-gray-50"
+            >
+              <span className="text-base font-bold">+</span>
+              <span>הוסף ל{category.label}</span>
+            </button>
+          )}
         </div>
       )}
     </div>

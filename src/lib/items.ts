@@ -11,6 +11,15 @@ import {
 import { db } from "./firebase";
 import type { ShoppingItem, CategoryId, UnitType, UserInfo } from "@/types";
 
+export async function updateItem(
+  familyId: string,
+  itemId: string,
+  updates: Partial<Pick<ShoppingItem, "quantity" | "notes" | "unit" | "price" | "photoUrl">>
+): Promise<void> {
+  const ref = doc(itemsCol(familyId), itemId);
+  await setDoc(ref, { ...updates, updatedAt: Date.now() }, { merge: true });
+}
+
 function itemsCol(familyId: string) {
   return collection(db, "families", familyId, "items");
 }
@@ -34,6 +43,8 @@ export async function addItem(
     quantity?: number;
     unit?: UnitType;
     price?: number;
+    notes?: string;
+    photoUrl?: string;
     addedBy: UserInfo;
   }
 ): Promise<void> {
@@ -46,6 +57,8 @@ export async function addItem(
     ...(payload.quantity != null && { quantity: payload.quantity }),
     ...(payload.unit != null && { unit: payload.unit }),
     ...(payload.price != null && { price: payload.price }),
+    ...(payload.notes && { notes: payload.notes }),
+    ...(payload.photoUrl && { photoUrl: payload.photoUrl }),
     inCart: false,
     addedBy: payload.addedBy,
     createdAt: now,

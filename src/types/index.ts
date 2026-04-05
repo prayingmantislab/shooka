@@ -46,11 +46,27 @@ export interface ShoppingItem {
   quantity?: number;
   unit?: UnitType;
   price?: number;
+  notes?: string;
+  photoUrl?: string;
   inCart: boolean;
   addedBy: UserInfo;
   checkedBy?: UserInfo;
   createdAt: number;
   updatedAt: number;
+}
+
+export interface SavedListItem {
+  name: string;
+  categoryId: CategoryId;
+  quantity?: number;
+  unit?: UnitType;
+}
+
+export interface SavedList {
+  id: string;
+  name: string;
+  items: SavedListItem[];
+  createdAt: number;
 }
 
 export interface FamilyDoc {
